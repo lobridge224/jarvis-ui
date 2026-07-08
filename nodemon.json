@@ -1,0 +1,5 @@
+{
+  "watch": ["server.js", "tools"],
+  "ignore": ["tools/pending/**", "data/**", "workspace/**", "node_modules/**"],
+  "ext": "js"
+}

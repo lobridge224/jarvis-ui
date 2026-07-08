@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jarvis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+<div class="grid-overlay"></div>
+
+<div id="gate" class="gate">
+  <div class="gate-card">
+    <div class="jarvis-ring ring-lg"><span class="ring-label">jarvis</span></div>
+    <p class="gate-label">access token</p>
+    <input id="gate-input" type="password" autocomplete="off" spellcheck="false" placeholder="paste your AUTH_TOKEN" />
+    <button id="gate-submit">connect</button>
+  </div>
+</div>
+
+<div id="app" class="app hidden">
+  <div class="topbar">
+    <span class="topbar-brand">J.A.R.V.I.S <span class="dot online" id="topbar-dot"></span> <span id="topbar-online-label">online</span></span>
+    <span class="topbar-clock" id="topbar-clock"></span>
+  </div>
+
+  <div class="layout">
+    <aside class="chat-column">
+      <header class="top-row">
+        <span class="dot" id="status-dot"></span>
+        <span id="status-text">connecting…</span>
+        <div class="top-actions">
+          <button id="ui-changes-btn" title="pending UI changes">ui</button>
+          <button id="tools-btn" title="pending tools">tools</button>
+          <button id="files-btn" title="file library">files</button>
+          <button id="reset-btn" title="clear conversation">reset</button>
+        </div>
+      </header>
+
+      <div class="orb-zone">
+        <div class="jarvis-ring ring-lg" id="main-ring"><span class="ring-label">jarvis</span></div>
+        <div class="orb-status" id="orb-status">online</div>
+      </div>
+
+      <main id="log" class="log"></main>
+
+      <div id="attached-row" class="attached-row hidden"></div>
+
+      <form id="composer" class="composer">
+        <button type="button" id="mode-toggle" class="mode-toggle" title="switch to voice">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="6" width="16" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M9 14h6" stroke-linecap="round"/></svg>
+        </button>
+        <textarea id="input" placeholder="Ask Jarvis anything…" rows="1" autofocus></textarea>
+        <div id="voice-indicator" class="voice-indicator hidden">
+          <span class="jarvis-ring ring-sm"></span>
+          <span id="voice-status">listening…</span>
+        </div>
+        <button id="send-btn" type="submit">send</button>
+      </form>
+    </aside>
+
+    <section class="workspace">
+      <div class="camera-panel">
+        <div class="camera-panel-header">
+          <span>camera</span>
+          <button id="camera-toggle" type="button">turn on</button>
+        </div>
+        <video id="camera-feed" class="hidden" autoplay muted playsinline></video>
+        <canvas id="camera-canvas" class="hidden"></canvas>
+        <div id="camera-off-msg" class="camera-off-msg">camera off — vision mode inactive</div>
+      </div>
+
+      <div id="workspace-empty" class="workspace-empty">
+        Nothing pulled up yet — ask Jarvis to show you something and it'll land here.
+      </div>
+      <div id="workspace-cards" class="workspace-cards"></div>
+    </section>
+  </div>
+
+  <div id="ui-changes-panel" class="files-panel hidden">
+    <div class="files-panel-header">
+      <span>pending UI changes — review the diff before approving</span>
+      <button id="ui-changes-close">close</button>
+    </div>
+    <div id="ui-changes-list" class="files-list"></div>
+  </div>
+
+  <div id="tools-panel" class="files-panel hidden">
+    <div class="files-panel-header">
+      <span>pending tools — review before approving</span>
+      <button id="tools-close">close</button>
+    </div>
+    <div id="tools-list" class="files-list"></div>
+  </div>
+
+  <div id="files-panel" class="files-panel hidden">
+    <div class="files-panel-header">
+      <span>file library</span>
+      <button id="files-close">close</button>
+    </div>
+    <div id="files-list" class="files-list"></div>
+    <label class="upload-row">
+      <input id="file-input" type="file" multiple hidden />
+      <span class="upload-btn">+ upload file</span>
+    </label>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
