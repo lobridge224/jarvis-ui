@@ -360,6 +360,44 @@ gateInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") gateSubmit.click();
 });
 
+function renderMarkdown(text) {
+  const escaped = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  const lines = escaped.split("\n");
+  let html = "";
+  let inList = false;
+  for (let line of lines) {
+    // headers: ## Title  →  styled heading (strip the hashes)
+    const header = line.match(/^(#{1,4})\s+(.*)$/);
+    if (header) {
+      if (inList) { html += "</ul>"; inList = false; }
+      html += `<div class="md-h">${header[2]}</div>`;
+      continue;
+    }
+    // bullet: - item  or  * item
+    const bullet = line.match(/^\s*[-*]\s+(.*)$/);
+    if (bullet) {
+      if (!inList) { html += "<ul class='md-ul'>"; inList = true; }
+      html += `<li>${inlineMd(bullet[1])}</li>`;
+      continue;
+    }
+    if (inList) { html += "</ul>"; inList = false; }
+    if (line.trim() === "") { html += "<br>"; continue; }
+    html += `<div>${inlineMd(line)}</div>`;
+  }
+  if (inList) html += "</ul>";
+  return html;
+}
+
+function inlineMd(s) {
+  return s
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")   // **bold**
+    .replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>")       // *italic*
+    .replace(/`([^`]+)`/g, "<code>$1</code>");             // `code`
+}
+
 function addMessage(role, text, pending = false) {
   const wrap = document.createElement("div");
   wrap.className = `msg ${role}${pending ? " pending" : ""}`;
@@ -368,7 +406,11 @@ function addMessage(role, text, pending = false) {
   label.textContent = role === "user" ? "you" : "jarvis";
   const body = document.createElement("div");
   body.className = "msg-body";
-  body.textContent = text;
+  if (role === "assistant" && !pending) {
+    body.innerHTML = renderMarkdown(text);
+  } else {
+    body.textContent = text;
+  }
   wrap.appendChild(label);
   wrap.appendChild(body);
   log.appendChild(wrap);
@@ -431,8 +473,12 @@ async function sendMessage(text, fileIds = []) {
     });
     const data = await res.json();
     pendingBody.parentElement.classList.remove("pending");
-    pendingBody.textContent = res.ok ? data.reply : `Error: ${data.error}`;
-    if (!res.ok) pendingBody.parentElement.style.borderLeftColor = "#C9584B";
+    if (res.ok) {
+      pendingBody.innerHTML = renderMarkdown(data.reply);
+    } else {
+      pendingBody.textContent = `Error: ${data.error}`;
+      pendingBody.parentElement.style.borderLeftColor = "#C9584B";
+    }
     refreshPendingTools();
     refreshPendingUIChanges();
   } catch (err) {
